@@ -20,6 +20,35 @@ function parentToolEnv(agentDir?: string): NodeJS.ProcessEnv {
 }
 
 describe("subagent extension child mode", () => {
+	it("applies model exclusion TTL from extension config at registration", () => {
+		const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "pi-subagents-model-exclusion-config-"));
+		const exclusionPath = path.join(agentDir, "model-exclusions.json");
+		try {
+			const configDir = path.join(agentDir, "extensions", "subagent");
+			fs.mkdirSync(configDir, { recursive: true });
+			fs.writeFileSync(path.join(configDir, "config.json"), JSON.stringify({ modelExclusions: { defaultTtlMs: 300_000 } }), "utf-8");
+			const script = String.raw`
+				import * as fs from "node:fs";
+				import registerSubagentExtension from "./index.ts";
+				import { recordModelFailure } from "./src/runs/shared/model-exclusions.ts";
+				const events = { on() { return () => {}; }, emit() {} };
+				const fakePi = new Proxy({
+					events,
+					registerTool() {}, registerCommand() {}, registerShortcut() {}, registerMessageRenderer() {}, sendMessage() {}, getSessionName() {},
+				}, { get(target, prop) { return prop in target ? target[prop] : () => undefined; } });
+				registerSubagentExtension(fakePi);
+				recordModelFailure({ modelId: "gpt-5", provider: "openai", reason: "test" });
+				const entry = JSON.parse(fs.readFileSync(process.env.PI_MODEL_EXCLUSIONS_PATH, "utf-8")).exclusions[0];
+				if (entry.expiresAt - entry.recordedAt !== 300_000) throw new Error("configured model exclusion TTL was not applied: " + JSON.stringify(entry));
+			`;
+			const env = parentToolEnv(agentDir);
+			env.PI_MODEL_EXCLUSIONS_PATH = exclusionPath;
+			execFileSync(process.execPath, ["--experimental-strip-types", "--import", "./test/support/register-loader.mjs", "--input-type=module", "--eval", script], { cwd: projectRoot, env, stdio: "pipe" });
+		} finally {
+			fs.rmSync(agentDir, { recursive: true, force: true });
+		}
+	});
+
 	it("collapses tool detail before direct subagent tool execution", () => {
 		const script = String.raw`
 			import registerSubagentExtension from "./index.ts";

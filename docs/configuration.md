@@ -18,6 +18,18 @@ By default, project settings resolve from the nearest parent directory that cont
 
 `"git-root"` keeps package discovery, project agents, chains, and `agentOverrides` anchored to the git worktree root when that root also has Pi project config. A nested project can still opt back into nearest-root behavior by setting `"projectRootResolution": "nearest"` in its own `.pi/settings.json`.
 
+## `modelExclusions`
+
+```json
+{
+  "modelExclusions": {
+    "defaultTtlMs": 300000
+  }
+}
+```
+
+Controls the default duration, in milliseconds, for newly recorded model exclusions. The default is `86400000` (24 hours). This value is applied when the extension starts or reloads and affects only new exclusion records; existing entries keep their persisted `expiresAt` value. `PI_MODEL_EXCLUSIONS_PATH` changes the exclusion-store path but does not change this TTL.
+
 ## `toolDescriptionMode`
 
 ```json

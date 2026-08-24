@@ -20,11 +20,19 @@ type RecordModelFailureOptions = ModelExclusionTarget & {
 
 let exclusions: ModelExclusion[] = [];
 let loaded = false;
-let defaultTTLMs = 24 * 60 * 60_000; // 24 hours, overridable via setDefaultTTL
+/** Default duration for a new model exclusion when no per-record TTL is supplied. */
+export const DEFAULT_MODEL_EXCLUSION_TTL_MS = 24 * 60 * 60_000;
+let defaultTTLMs = DEFAULT_MODEL_EXCLUSION_TTL_MS;
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 let persistSeq = 0;
 
-/** Override the default exclusion TTL. */
+/**
+ * Override the default TTL applied to newly recorded model exclusions.
+ *
+ * @param ms Duration in milliseconds. Must be finite and positive.
+ * @returns Nothing.
+ */
+// TEST:test/unit/model-exclusions.test.ts[model exclusions — TTL expiry]
 export function setDefaultTTL(ms: number): void {
 	if (!Number.isFinite(ms) || ms <= 0) throw new Error("Default model exclusion TTL must be a finite positive number.");
 	defaultTTLMs = ms;

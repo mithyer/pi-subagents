@@ -2094,6 +2094,11 @@ export interface ScheduledRunsConfig {
 	storeRoot?: string;
 }
 
+export interface ModelExclusionsConfig {
+	/** Default duration in milliseconds for newly recorded model exclusions. */
+	defaultTtlMs?: number;
+}
+
 export type FleetViewPlacement = "aboveEditor" | "belowEditor";
 
 export const FLEET_KEYBINDING_ACTIONS = [
@@ -2142,6 +2147,8 @@ export interface ExtensionConfig {
 	fleetKeybindings?: FleetKeybindingsConfig;
 	/** Show the under-editor async runs widget. Defaults to true, including when FleetView is enabled. */
 	asyncWidget?: boolean;
+	/** Configure the process-wide TTL policy for persisted model exclusions. */
+	modelExclusions?: ModelExclusionsConfig;
 	/** Tool description variant registered for the parent-facing subagent tool. Defaults to split metadata. */
 	toolDescriptionMode?: ToolDescriptionMode;
 	/** Inline chat rendering for the subagent tool. Defaults to rich. */
