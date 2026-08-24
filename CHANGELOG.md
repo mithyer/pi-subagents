@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- Add `modelExclusions.defaultTtlMs` configuration for controlling the default lifetime of newly recorded model exclusions.
+- Add `modelExclusions.defaultTtlMs` configuration for controlling the default lifetime of newly recorded model exclusions. Thanks to @mithyer for #1439.
 - Add the built-in `codex-exec` profile with code-owned read-only argv, bounded JSONL terminal proof, and a final-message artifact.
 - External CLI runs now publish code-owned capability limits and compact workflow receipt metadata for adapter identity, artifacts, handoff mode, supervisor support, and resumability.
 - External one-shot runners now support bounded parser hooks and logs, environment allowlists, cached launch preflight, coalesced parser progress, and process-tree cleanup.
